@@ -34,8 +34,7 @@ output file               The output file to write to
 
     protected def encryptFile(cipherFile: String, sourceFile: String, outputFile: String) {
         val encryptedStream = new PrintWriter(outputFile)
-        val cipher = Source.fromFile(cipherFile).mkString
-        val bookCipher = new BookCipher(cipher)
+        val bookCipher = createBookCipher(cipherFile)
 
         Source.fromFile(sourceFile)
             .map(bookCipher.encode)
@@ -47,8 +46,7 @@ output file               The output file to write to
 
     protected def decryptFile(cipherFile: String, sourceFile: String, outputFile: String) {
         val decryptedStream = new PrintWriter(outputFile)
-        val cipher = Source.fromFile(cipherFile).mkString
-        val bookCipher = new BookCipher(cipher)
+        val bookCipher = createBookCipher(cipherFile)
 
         Source.fromFile(sourceFile)
             .getLines
@@ -58,5 +56,9 @@ output file               The output file to write to
 
         decryptedStream.flush
         decryptedStream.close
+    }
+
+    protected def createBookCipher(cipherFile: String): BookCipher = {
+        new BookCipher(Source.fromFile(cipherFile).mkString)
     }
 }
