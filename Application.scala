@@ -4,69 +4,106 @@ import scala.util.Random
 
 object Application {
 
-    val randomGenerator = Random
-
     def main(args: Array[String]) {
         val writer = new PrintWriter("sample/encrypted.txt")
         val decrypted = Source.fromFile("sample/decrypted.txt")
-        var cipher = Source.fromFile("sample/cipher.txt").mkString
-        var codedIndex: Int = randomIndex(cipher)
+        val cipher = Source.fromFile("sample/cipher.txt").mkString
+        val bookCipher = new BookCipher(cipher)
 
         for (letter <- decrypted) {
-            // If the cipher does not contain a character in the 
-            // source data then we need to halt and notify the user
-            if (!cipher.contains(letter)) {
-                throw new Exception(s"Cipher does not contain the character $letter")
-            }
-
-            // Randomly search for a matching index value to use as a "code"
-            // This code is then transformed into a string containing
-            // the line, word, and column of the letter for that given index
-            while (!isMatchingIndex(letter, codedIndex, cipher)) {
-                codedIndex = randomIndex(cipher)
-            }
-            prettyPrint(codedIndex, cipher, writer)
+            writer.write("%s%n".format(bookCipher.encode(letter).toString))
         }
 
         writer.flush
         writer.close
+
+        Source.fromFile("sample/encrypted.txt").getLines.foreach { line =>
+            print(bookCipher.decode(Cipher.fromLine(line)))
+        }
     }
 
-    def isMatchingIndex(letter: Char, index: Int, buffer: String): Boolean = letter equals buffer(index)
 
-    def randomIndex(buffer: String): Int = randomGenerator.nextInt(buffer.length)
+object Cipher {
+    def fromLine(line: String): Cipher = {
+        val params = line.split("-").map(_.toInt)
+        Cipher(params(0), params(1), params(2))
+    }
+}
 
-    /**
-     * Here we convert our buffer index (i.e. 76) into a string
-     * containing the line, word, and column where that index is located
-     * the format is as follows
-     * [line]-[word]-[column] ex. 4-12-6
-     */
-    def prettyPrint(indexToSeek: Int, buffer: String, writer: PrintWriter) {
+case class Cipher(line: Int, word: Int, column: Int) {
+    override def toString() = s"$line-$word-$column"
+}
+
+class BookCipher(buffer: String) {
+
+    private val randomGenerator = Random
+
+    def encode(letter: Char): Cipher = {
+        // If the cipher does not contain a character in the
+        // source data then we need to halt and notify the user
+        if (!buffer.contains(letter)) {
+            throw new Exception(s"Cipher does not contain the character $letter")
+        }
+
+        // Randomly search for a matching index value to use as a "code"
+        // This code is then transformed into a string containing
+        // the line, word, and column of the letter for that given index
+        var codedIndex = 0
+        while (!isMatchingIndex(letter, codedIndex)) {
+            codedIndex = randomIndex
+        }
+
         var line = 1
         var word = 1
-        var letter = 1
-        var index = 0
+        var column = 1
         var currentChar = '\0'
+        var currentIndex = 0
 
-        while (index < indexToSeek) {
-            currentChar = buffer(index)
+        while (currentIndex < codedIndex) {
+            currentChar = buffer(currentIndex)
             if ('\n' equals currentChar) {
                 line += 1
                 word = 1
-                letter = 1
+                column = 1
             } else if (!currentChar.isSpaceChar && !currentChar.isLetter) {
                 // noop these characters are not considered words but
                 // we want to continue incrementing the counters
             } else if (currentChar.isSpaceChar) {
                 word += 1
-                letter = 1
+                column = 1
             } else {
-                letter += 1
+                column += 1
             }
-            index += 1
+            currentIndex += 1
         }
 
-        writer.write("%d-%d-%d%n".format(line, word, letter))
+        Cipher(line, word, column)
     }
+
+    def decode(cipher: Cipher): Char = {
+        var line = 1
+        var currentIndex = 0
+        while (line != cipher.line) {
+            if ('\n' equals buffer(currentIndex)) {
+                line += 1
+            }
+            currentIndex += 1
+        }
+
+        var word = 1
+        while (word != cipher.word) {
+            if (buffer(currentIndex).isSpaceChar) {
+                word += 1
+            }
+            currentIndex += 1
+        }
+
+        buffer(currentIndex + (cipher.column - 1))
+    }
+
+    protected def isMatchingIndex(letter: Char, index: Int): Boolean = letter equals buffer(index)
+
+    protected def randomIndex: Int = randomGenerator.nextInt(buffer.length)
+}
+
 }
