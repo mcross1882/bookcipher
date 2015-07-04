@@ -53,11 +53,11 @@ class BookCipher(buffer: String) {
         buffer(currentIndex)
     }
 
-    protected def seekToIndex(startIndex: Int, maxIterations: Int, isMatch: Char => Boolean): Int = {
+    protected def seekToIndex(startIndex: Int, maxIterations: Int, isNextElement: Char => Boolean): Int = {
         var iteration = 1
         var nextIndex = startIndex
         while (iteration != maxIterations) {
-            if (isMatch(buffer(nextIndex))) {
+            if (isNextElement(buffer(nextIndex))) {
                 iteration += 1
             }
             nextIndex += 1
