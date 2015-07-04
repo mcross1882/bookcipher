@@ -41,7 +41,6 @@ class BookCipher(buffer: String) {
     }
 
     def decode(cipher: Cipher): Char = {
-        var line = 1
         var currentIndex = seekToIndex(0, cipher.line, _.equals('\n'))
         currentIndex = seekToIndex(currentIndex, cipher.word, _.isSpaceChar)
         currentIndex += (cipher.column - 1)
