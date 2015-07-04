@@ -2,7 +2,6 @@ package bookcipher
 
 import scala.util.Random
 
-
 object Cipher {
     def fromLine(line: String): Cipher = {
         val params = line.split("-").map(_.toInt)
@@ -11,7 +10,7 @@ object Cipher {
 }
 
 case class Cipher(line: Int, word: Int, column: Int) {
-    override def toString() = s"$line-$word-$column"
+    override def toString() = f"$line%d-$word%d-$column%d%n"
 }
 
 class BookCipher(buffer: String) {

@@ -5,7 +5,7 @@ import scala.io.Source
 
 object Application {
 
-    private val HelpMessage = 
+    private val HelpMessage =
 """
 Usage:
 bookcipher [encrypt|decrypt] [cipher file] [source file] [output file]
@@ -31,8 +31,7 @@ output file               The output file to write to
         val bookCipher = new BookCipher(cipher)
 
         source.map(bookCipher.encode)
-            .map(c => "%s%n".format(c.toString))
-            .foreach(encryptedStream.write)
+            .foreach(encryptedStream.print)
 
         encryptedStream.flush
         encryptedStream.close
@@ -47,8 +46,7 @@ output file               The output file to write to
             .getLines
             .map(Cipher.fromLine)
             .map(bookCipher.decode)
-            .map(_.toString)
-            .foreach(decryptedStream.write)
+            .foreach(decryptedStream.print)
 
         decryptedStream.flush
         decryptedStream.close
