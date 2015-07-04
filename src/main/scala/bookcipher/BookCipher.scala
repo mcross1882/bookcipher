@@ -23,20 +23,15 @@ class BookCipher(buffer: String) {
             case None => throw new Exception(s"Cipher file does not contain the character $letter")
         }
 
-        var line = 1
-        var word = 1
-        var column = 1
+        var line = 1; var word = 1; var column = 1
         var currentChar = '\u0000'
 
         for (currentIndex <- 0 until codedIndex) {
             currentChar = buffer(currentIndex)
             if ('\n' equals currentChar) {
-                line += 1
-                word = 1
-                column = 1
+                line += 1; word = 1; column = 1
             } else if (currentChar.isSpaceChar) {
-                word += 1
-                column = 1
+                word += 1; column = 1
             } else {
                 column += 1
             }
@@ -70,7 +65,7 @@ class BookCipher(buffer: String) {
             return None
         }
 
-        var codedIndex = 0
+        var codedIndex = randomIndex
         while (!isMatchingIndex(letter, codedIndex)) {
             codedIndex = randomIndex
         }
