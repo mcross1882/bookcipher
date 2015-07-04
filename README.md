@@ -24,7 +24,7 @@ For instance given the example below
 *cipher.txt*
 ```
 The blue whale
-The brown dog
+The black dog
 The gray cat
 ```
 
