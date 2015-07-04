@@ -17,6 +17,14 @@ output file               The output file to write to
 """
 
     def main(args: Array[String]) {
+        try {
+            runArgs(args)
+        } catch {
+            case e: Exception => println(s"Error: ${e.getMessage}")
+        }
+    }
+
+    protected def runArgs(args: Array[String]) {
         args match {
             case Array("encrypt", cipherFile, sourceFile, outputFile) => encryptFile(cipherFile, sourceFile, outputFile)
             case Array("decrypt", cipherFile, sourceFile, outputFile) => decryptFile(cipherFile, sourceFile, outputFile)

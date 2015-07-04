@@ -20,7 +20,7 @@ class BookCipher(buffer: String) {
     def encode(letter: Char): Cipher = {
         val codedIndex = findMatchingIndex(letter) match {
             case Some(value) => value
-            case None => throw new Exception(s"Cipher does not contain the character $letter")
+            case None => throw new Exception(s"Cipher file does not contain the character $letter")
         }
 
         var line = 1
