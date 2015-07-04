@@ -33,12 +33,12 @@ output file               The output file to write to
     }
 
     protected def encryptFile(cipherFile: String, sourceFile: String, outputFile: String) {
-        val source = Source.fromFile(sourceFile)
         val encryptedStream = new PrintWriter(outputFile)
         val cipher = Source.fromFile(cipherFile).mkString
         val bookCipher = new BookCipher(cipher)
 
-        source.map(bookCipher.encode)
+        Source.fromFile(sourceFile)
+            .map(bookCipher.encode)
             .foreach(encryptedStream.print)
 
         encryptedStream.flush
