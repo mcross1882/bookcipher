@@ -10,7 +10,7 @@ object Application {
 Usage:
 bookcipher [encrypt|decrypt] [cipher file] [source file] [output file]
 
-encrypt/descrypt          Encrypt/descrypt the source file
+encrypt/descrypt          Encrypt/decrypt the source file
 cipher file               A file containing text that can be mapped to your source file
 source file               The source file to encrypt or decrypt
 output file               The output file to write to
