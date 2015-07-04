@@ -5,21 +5,25 @@ import scala.util.Random
 object Application {
 
     def main(args: Array[String]) {
-        val writer = new PrintWriter("sample/encrypted.txt")
-        val decrypted = Source.fromFile("sample/decrypted.txt")
+        val encryptedStream = new PrintWriter("sample/encrypted.txt")
+        val decryptedStream = new PrintWriter("sample/decrypted.txt")
+        val source = Source.fromFile("sample/source.txt")
         val cipher = Source.fromFile("sample/cipher.txt").mkString
         val bookCipher = new BookCipher(cipher)
 
-        for (letter <- decrypted) {
-            writer.write("%s%n".format(bookCipher.encode(letter).toString))
+        for (letter <- source) {
+            encryptedStream.write("%s%n".format(bookCipher.encode(letter).toString))
         }
 
-        writer.flush
-        writer.close
+        encryptedStream.flush
+        encryptedStream.close
 
         Source.fromFile("sample/encrypted.txt").getLines.foreach { line =>
-            print(bookCipher.decode(Cipher.fromLine(line)))
+            decryptedStream.write(bookCipher.decode(Cipher.fromLine(line)))
         }
+
+        decryptedStream.flush
+        decryptedStream.close
     }
 
 
@@ -39,18 +43,9 @@ object Application {
         private val randomGenerator = Random
 
         def encode(letter: Char): Cipher = {
-            // If the cipher does not contain a character in the
-            // source data then we need to halt and notify the user
-            if (!buffer.contains(letter)) {
-                throw new Exception(s"Cipher does not contain the character $letter")
-            }
-
-            // Randomly search for a matching index value to use as a "code"
-            // This code is then transformed into a string containing
-            // the line, word, and column of the letter for that given index
-            var codedIndex = 0
-            while (!isMatchingIndex(letter, codedIndex)) {
-                codedIndex = randomIndex
+            val codedIndex = findMatchingIndex(letter) match {
+                case Some(value) => value
+                case None => throw new Exception(s"Cipher does not contain the character $letter")
             }
 
             var line = 1
@@ -59,15 +54,12 @@ object Application {
             var currentChar = '\0'
             var currentIndex = 0
 
-            while (currentIndex < codedIndex) {
+            while (currentIndex != codedIndex) {
                 currentChar = buffer(currentIndex)
                 if ('\n' equals currentChar) {
                     line += 1
                     word = 1
                     column = 1
-                } else if (!currentChar.isSpaceChar && !currentChar.isLetter) {
-                    // noop these characters are not considered words but
-                    // we want to continue incrementing the counters
                 } else if (currentChar.isSpaceChar) {
                     word += 1
                     column = 1
@@ -101,9 +93,20 @@ object Application {
             buffer(currentIndex + (cipher.column - 1))
         }
 
+        protected def findMatchingIndex(letter: Char): Option[Int] = {
+            if (!buffer.contains(letter)) {
+                return None
+            }
+
+            var codedIndex = 0
+            while (!isMatchingIndex(letter, codedIndex)) {
+                codedIndex = randomIndex
+            }
+            Some(codedIndex)
+        }
+
         protected def isMatchingIndex(letter: Char, index: Int): Boolean = letter equals buffer(index)
 
         protected def randomIndex: Int = randomGenerator.nextInt(buffer.length)
     }
-
 }
